@@ -9,27 +9,31 @@ class DataKesehatan extends Model
 {
     use HasFactory;
 
-    protected $table = 'data_kesehatans';
-
     protected $fillable = [
         'user_id',
+        'ttl',
+        'umur',
         'tinggi_badan',
         'berat_badan',
         'alergi',
+        'riwayat_penyakit',
+        'catatan_gizi',
+        'rekomendasi_menu',
         'gaya_hidup',
         'preferensi_makanan',
         'anggaran_makan',
         'tanggal_input',
     ];
-    // Accessor untuk menghitung Nilai IMT
+
     public function getImtAttribute()
     {
-        if (!$this->tinggi_badan || !$this->berat_badan) return 0;
-        $tinggiMeter = $this->tinggi_badan / 100;
-        return round($this->berat_badan / ($tinggiMeter * $tinggiMeter), 1);
+        if ($this->tinggi_badan > 0) {
+            $tinggiMeter = $this->tinggi_badan / 100;
+            return round($this->berat_badan / ($tinggiMeter * $tinggiMeter), 1);
+        }
+        return 0;
     }
 
-    // Accessor untuk menentukan Status Gizi
     public function getStatusGiziAttribute()
     {
         $imt = $this->imt;
@@ -37,5 +41,10 @@ class DataKesehatan extends Model
         if ($imt <= 24.9) return 'Normal';
         if ($imt <= 29.9) return 'Gemuk';
         return 'Obesitas';
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

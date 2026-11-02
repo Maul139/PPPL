@@ -4,16 +4,26 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    // Form Login
     public function showLoginForm()
     {
         return view('auth.login');
     }
 
-    // Proses Login
+    public function showRoleLogin($role)
+    {
+        return view('auth.loginrole', compact('role'));
+    }
+
+    public function showRoleRegister($role)
+    {
+        return view('auth.registerrole', compact('role'));
+    }
+
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -26,7 +36,6 @@ class AuthController extends Controller
 
             $user = Auth::user();
 
-            // Pengalihan berdasarkan role
             if ($user->role === 'mahasiswa') {
                 return redirect()->route('kesehatan.index');
             } elseif ($user->role === 'ahli_gizi') {
@@ -43,13 +52,37 @@ class AuthController extends Controller
         ])->onlyInput('email');
     }
 
-    // Logout
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6',
+            'role'     => 'required|in:mahasiswa,ahli_gizi,admin',
+        ]);
+
+        $user = User::create([
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password),
+            'role'     => $request->role,
+        ]);
+
+        Auth::login($user);
+
+        if ($user->role === 'mahasiswa') {
+            return redirect()->route('biodata.create');
+        }
+
+        return redirect()->intended('/gizi/dashboard');
+    }
+
     public function logout(Request $request)
     {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login');
+        return redirect()->route('landing');
     }
 }
