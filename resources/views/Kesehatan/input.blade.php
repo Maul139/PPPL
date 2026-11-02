@@ -8,8 +8,22 @@
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-xl shadow-md max-w-md w-full text-center">
-        <h1 class="text-2xl font-bold text-emerald-600 mb-2">NutriCare System</h1>
-        <p class="text-gray-600 text-sm mb-6">Formulir Input Data Kesehatan Mahasiswa</p>
+    <!-- Header Navigation -->
+    <div class="flex justify-between items-center mb-6 border-b pb-4">
+        <a href="{{ route('kesehatan.index') }}" class="text-xs text-emerald-600 font-semibold hover:underline">
+            ← Kembali ke Riwayat
+        </a>
+
+        <form action="{{ route('logout') }}" method="POST">
+            @csrf
+            <button type="submit" class="text-xs text-red-500 font-semibold hover:underline">
+                Logout
+            </button>
+        </form>
+    </div>
+
+    <h1 class="text-2xl font-bold text-emerald-600 mb-2">NutriCare System</h1>
+    <p class="text-gray-600 text-sm mb-6">Formulir Input Data Kesehatan Mahasiswa</p>
 
         <!-- Notifikasi Berhasil -->
         @if(session('success'))

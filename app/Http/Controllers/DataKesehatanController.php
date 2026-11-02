@@ -27,7 +27,7 @@ class DataKesehatanController extends Controller
         ]);
 
         DataKesehatan::create([
-            'user_id'            => Auth::id() ?? 1, // Menggunakan ID user ter-login (fallback ke ID 1 jika auth belum aktif)
+            'user_id'            => Auth::id() ?? 1,
             'tinggi_badan'       => $validated['tinggi_badan'],
             'berat_badan'        => $validated['berat_badan'],
             'alergi'             => $validated['alergi'] ?? null,
@@ -37,6 +37,16 @@ class DataKesehatanController extends Controller
             'tanggal_input'      => now()->toDateString(),
         ]);
 
-        return redirect()->back()->with('success', 'Data kesehatan berhasil disimpan!');
+        return redirect()->route('kesehatan.index')->with('success', 'Data kesehatan berhasil disimpan!');
+    }
+
+    // Menampilkan daftar riwayat kesehatan
+    public function index()
+    {
+        $riwayatData = DataKesehatan::where('user_id', Auth::id() ?? 1)
+            ->orderBy('tanggal_input', 'desc')
+            ->get();
+
+        return view('kesehatan.riwayat', compact('riwayatData'));
     }
 }
