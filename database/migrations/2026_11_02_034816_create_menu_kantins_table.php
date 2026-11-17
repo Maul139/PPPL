@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('menu_kantins', function (Blueprint $table) {
             $table->id();
             $table->string('nama_menu');
-            $table->string('nilai_gizi');
-            $table->double('harga');
-            $table->string('status_verifikasi')->default('Pending');
-            $table->date('tanggal_verifikasi')->nullable();
+            $table->enum('kategori', ['makanan', 'minuman', 'camilan'])->default('makanan');
+            $table->integer('kalori');
+            $table->integer('harga');
+            $table->text('deskripsi')->nullable();
             $table->timestamps();
         });
     }
@@ -30,3 +30,4 @@ return new class extends Migration
         Schema::dropIfExists('menu_kantins');
     }
 };
+

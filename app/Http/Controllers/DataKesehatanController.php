@@ -8,6 +8,21 @@ use Illuminate\Support\Facades\Auth;
 
 class DataKesehatanController extends Controller
 {
+    // Method untuk melihat Katalog Kantin
+    public function kantin(Request $request)
+    {
+        $query = \App\Models\MenuKantin::query();
+
+        // Filter Kategori jika ada
+        if ($request->has('kategori') && $request->kategori != '') {
+            $query->where('kategori', $request->kategori);
+        }
+
+        $menus = $query->orderBy('nama_menu', 'asc')->get();
+
+        return view('kesehatan.kantin', compact('menus'));
+    }
+
     public function create()
     {
         return view('kesehatan.input');
@@ -44,7 +59,21 @@ class DataKesehatanController extends Controller
             ->orderBy('tanggal_input', 'desc')
             ->get();
 
-        return view('kesehatan.riwayat', compact('riwayatData'));
+        $chartData = DataKesehatan::where('user_id', Auth::id())
+        ->orderBy('tanggal_input', 'asc')
+        ->get();
+
+        $chartDates = $chartData->pluck('tanggal_input')->map(function($date) {
+        return \Carbon\Carbon::parse($date)->format('d M Y');
+        });
+
+        $chartWeights = $chartData->pluck('berat_badan');
+        $chartImts    = $chartData->map(function($item) {
+        return $item->imt;
+        });
+
+
+        return view('kesehatan.riwayat', compact('riwayatData', 'chartDates', 'chartWeights', 'chartImts'));
     }
 
     public function showBiodataForm()
@@ -75,5 +104,15 @@ class DataKesehatanController extends Controller
         ]);
 
         return redirect()->route('kesehatan.index')->with('success', 'Biodata awal berhasil disimpan!');
+    }
+
+    public function exportPdf()
+    {
+    $user = Auth::user();
+    $riwayatData = DataKesehatan::where('user_id', $user->id)
+        ->orderBy('tanggal_input', 'desc')
+        ->get();
+
+    return view('kesehatan.pdf', compact('user', 'riwayatData'));
     }
 }

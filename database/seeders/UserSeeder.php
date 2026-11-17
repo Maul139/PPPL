@@ -24,9 +24,10 @@ class UserSeeder extends Seeder
             'role' => 'ahli_gizi',
         ]);
 
-        User::create([
-            'name' => 'Admin Kantin Test',
+        User::updateOrCreate([
             'email' => 'admin@gmail.com',
+        ], [
+            'name' => 'Admin Kantin Test',
             'password' => Hash::make('password123'),
             'role' => 'admin',
         ]);
